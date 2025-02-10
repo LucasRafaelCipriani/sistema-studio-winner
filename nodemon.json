@@ -1,0 +1,7 @@
+{
+  "watch": ["electron", "src", "main.js"],
+  "ext": "js,json",
+  "execMap": {
+    "js": "electron ."
+  }
+}
