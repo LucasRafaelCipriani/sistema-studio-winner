@@ -1,5 +1,5 @@
 {
-  "watch": ["electron", "src", "main.js"],
+  "watch": ["electron", "main.js", "preload.js"],
   "ext": "js,json",
   "execMap": {
     "js": "electron ."

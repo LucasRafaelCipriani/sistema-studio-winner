@@ -20,7 +20,10 @@
     "electron-squirrel-startup": "^1.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.6"
+    "react-hook-form": "^7.54.2",
+    "react-text-mask": "^5.5.0",
+    "tailwindcss": "^4.0.6",
+    "text-mask-addons": "^3.8.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.1",

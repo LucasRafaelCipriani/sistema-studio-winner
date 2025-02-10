@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, MenuItem } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, MenuItem } from 'electron';
 import path from 'path';
 import isDev from 'electron-is-dev';
 import { fileURLToPath } from 'url';
@@ -11,9 +11,10 @@ let mainWindow;
 
 app.whenReady().then(() => {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     title: 'Studio Winner',
+    maximizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
@@ -22,7 +23,6 @@ app.whenReady().then(() => {
   });
 
   mainWindow.loadURL('http://localhost:5173');
-  mainWindow.maximize();
 
   if (isDev) {
     const contextMenu = new Menu();
@@ -68,4 +68,10 @@ app.whenReady().then(() => {
 
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
+
+  ipcMain.on('send-user-data', (event, data) => {
+    console.log('User saved: ', data);
+
+    event.reply('get-users', [data]);
+  });
 });
