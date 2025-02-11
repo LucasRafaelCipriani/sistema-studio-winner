@@ -5,7 +5,6 @@ import path from 'path';
 import isDev from 'electron-is-dev';
 import { fileURLToPath } from 'url';
 
-// Configuração necessária para lidar com __dirname em ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -25,8 +24,6 @@ app.whenReady().then(() => {
         ? 'logo-linux.png'
         : 'logo-mac.png'
     ),
-    resizable: true,
-    maximizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
@@ -34,7 +31,8 @@ app.whenReady().then(() => {
     },
   });
 
-  mainWindow.loadURL('http://localhost:5173');
+  mainWindow.maximize();
+  mainWindow.loadURL('http://localhost:5173/#/');
 
   if (isDev) {
     const contextMenu = new Menu();
@@ -46,7 +44,7 @@ app.whenReady().then(() => {
       })
     );
 
-    mainWindow.webContents.on('context-menu', (event, params) => {
+    mainWindow.webContents.on('context-menu', (_event, params) => {
       contextMenu.popup(mainWindow, params.x, params.y);
     });
   }
@@ -55,25 +53,25 @@ app.whenReady().then(() => {
     {
       label: 'Início',
       click: () => {
-        mainWindow.webContents.send('inicio');
+        mainWindow.loadURL('http://localhost:5173/#/');
       },
     },
     {
       label: 'Cadastro Clientes',
       click: () => {
-        mainWindow.webContents.send('cadastro-clientes');
+        mainWindow.loadURL('http://localhost:5173/#/cadastro-clientes');
       },
     },
     {
       label: 'Tabela Clientes',
       click: () => {
-        mainWindow.webContents.send('consulta-clientes');
+        mainWindow.loadURL('http://localhost:5173/#/consulta-clientes');
       },
     },
     {
       label: 'Gráficos',
       click: () => {
-        mainWindow.webContents.send('graficos');
+        mainWindow.loadURL('http://localhost:5173/#/graficos');
       },
     },
   ];
@@ -89,6 +87,24 @@ app.whenReady().then(() => {
     }
 
     return fileData;
+  });
+
+  ipcMain.handle('filter-users-data', async (_event, data) => {
+    let fileData = [];
+
+    if (existsSync('data.json')) {
+      fileData = JSON.parse(readFileSync('data.json'));
+    }
+
+    const filteredFileData = fileData.filter(
+      (item) =>
+        (data.nome !== ''
+          ? item.nome.toLowerCase().includes(data.nome.toLowerCase())
+          : false) ||
+        (data.telefone !== '' ? item.telefone.includes(data.telefone) : false)
+    );
+
+    return filteredFileData;
   });
 
   ipcMain.handle('show-delete-confirmation', async () => {
@@ -113,6 +129,27 @@ app.whenReady().then(() => {
       }
 
       fileData.unshift(data);
+
+      writeFileSync('data.json', JSON.stringify(fileData, null, 2));
+
+      event.reply('user-response', true);
+    } catch (error) {
+      console.error(error);
+      event.reply('user-response', false);
+    }
+  });
+
+  ipcMain.on('edit-user-data', (event, data) => {
+    let fileData = [];
+
+    try {
+      if (existsSync('data.json')) {
+        fileData = JSON.parse(readFileSync('data.json'));
+      }
+
+      const index = fileData.findIndex((item) => item.id === data.id);
+
+      fileData[index] = data;
 
       writeFileSync('data.json', JSON.stringify(fileData, null, 2));
 

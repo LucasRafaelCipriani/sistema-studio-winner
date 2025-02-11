@@ -10,11 +10,15 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('consulta-clientes', (_event, ...args) => callback(...args)),
   onGraficos: (callback) =>
     ipcRenderer.on('graficos', (_event, ...args) => callback(...args)),
-  // Data
+  // UI
   onUserResponse: (callback) =>
     ipcRenderer.on('user-response', (_event, ...args) => callback(...args)),
   confirmDeletion: () => ipcRenderer.invoke('show-delete-confirmation'),
+  // Data
   getUsersData: (data) => ipcRenderer.invoke('get-users-data', data),
+  filterUsersData: (_event, data) =>
+    ipcRenderer.invoke('filter-users-data', _event, data),
   sendUserData: (data) => ipcRenderer.send('send-user-data', data),
+  editUserData: (data) => ipcRenderer.send('edit-user-data', data),
   deleteUserData: (data) => ipcRenderer.send('delete-user-data', data),
 });

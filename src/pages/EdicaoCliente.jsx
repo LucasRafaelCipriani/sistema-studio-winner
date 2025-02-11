@@ -1,25 +1,23 @@
+/* eslint-disable react/prop-types */
 import MaskedInput from 'react-text-mask';
-import { v4 as uuidv4 } from 'uuid';
-import { ToastContainer, toast } from 'react-toastify';
 import { useForm, Controller } from 'react-hook-form';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-import { useEffect, useRef } from 'react';
 import addCents from '../utils/add-cents';
 
-const CadastroClientes = () => {
-  const { register, handleSubmit, control, reset, formState } = useForm();
-  const ref = useRef(null);
+const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
+  const { register, handleSubmit, control, formState } = useForm({
+    defaultValues: user,
+  });
 
   const onSubmit = (data) => {
     if (Object.keys(formState.errors).length <= 0) {
       if (window.electron) {
-        ref.current = false;
-        window.electron.sendUserData({
+        window.electron.editUserData({
           ...data,
           mensalidade: addCents(data.mensalidade),
-          id: uuidv4(),
         });
-        reset();
+        onEditUser(data);
+        closeModal(false);
       }
     }
   };
@@ -35,32 +33,10 @@ const CadastroClientes = () => {
     allowLeadingZeroes: false,
   });
 
-  useEffect(() => {
-    if (window.electron) {
-      window.electron.onUserResponse((isSuccess) => {
-        if (!ref.current) {
-          ref.current = true;
-          if (isSuccess) {
-            toast.success('Cliente salvo com sucesso!', {
-              toastId: new Date().getTime(),
-            });
-          } else {
-            toast.error(
-              'Um erro ocorreu ao tentar salvar um cliente. Por favor, tente novamente.',
-              {
-                toastId: new Date().getTime(),
-              }
-            );
-          }
-        }
-      });
-    }
-  }, []);
-
   return (
     <section className="p-4 bg-black">
       <h1 className="text-[40px] font-bold text-white">
-        Cadastro de <span className="text-green-700">Clientes</span>
+        Edição de <span className="text-green-700">Cliente</span>
       </h1>
       <form
         className="mt-5 border border-white rounded-lg px-6 py-4 text-white"
@@ -229,24 +205,15 @@ const CadastroClientes = () => {
         <button
           type="submit"
           disabled={
-            Object.keys(formState.dirtyFields).length < 4 ||
-            Object.keys(formState.errors).length > 0 ||
-            formState.isLoading
+            Object.keys(formState.errors).length > 0 || formState.isLoading
           }
           className="rounded-md bg-green-700 text-white text-[20px] px-4 py-2 w-full hover:bg-green-950 disabled:bg-gray-500 disabled:cursor-not-allowed"
         >
-          Cadastrar
+          Salvar
         </button>
       </form>
-      <ToastContainer
-        limit={1}
-        position="bottom-right"
-        toastStyle={{ width: '100%' }}
-        autoClose={1000}
-        closeButton={false}
-      />
     </section>
   );
 };
 
-export default CadastroClientes;
+export default EdicaoCliente;
