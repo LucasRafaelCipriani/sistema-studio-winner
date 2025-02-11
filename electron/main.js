@@ -1,4 +1,6 @@
-import { app, BrowserWindow, ipcMain, Menu, MenuItem } from 'electron';
+/* eslint-disable no-undef */
+import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem } from 'electron';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
 import path from 'path';
 import isDev from 'electron-is-dev';
 import { fileURLToPath } from 'url';
@@ -14,6 +16,16 @@ app.whenReady().then(() => {
     width: 1200,
     height: 800,
     title: 'Studio Winner',
+    icon: path.join(
+      __dirname,
+      'assets',
+      process?.platform === 'win32'
+        ? 'logo-win.ico'
+        : process?.platform === 'linux'
+        ? 'logo-linux.png'
+        : 'logo-mac.png'
+    ),
+    resizable: true,
     maximizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -53,7 +65,7 @@ app.whenReady().then(() => {
       },
     },
     {
-      label: 'Consulta Clientes',
+      label: 'Tabela Clientes',
       click: () => {
         mainWindow.webContents.send('consulta-clientes');
       },
@@ -69,9 +81,64 @@ app.whenReady().then(() => {
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
 
-  ipcMain.on('send-user-data', (event, data) => {
-    console.log('User saved: ', data);
+  ipcMain.handle('get-users-data', async () => {
+    let fileData = [];
 
-    event.reply('get-users', [data]);
+    if (existsSync('data.json')) {
+      fileData = JSON.parse(readFileSync('data.json'));
+    }
+
+    return fileData;
+  });
+
+  ipcMain.handle('show-delete-confirmation', async () => {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      title: 'Confirmação',
+      message: 'Tem certeza que deseja deletar este item?',
+      buttons: ['Cancelar', 'Deletar'],
+      defaultId: 0,
+      cancelId: 0,
+    });
+
+    return result.response === 1;
+  });
+
+  ipcMain.on('send-user-data', (event, data) => {
+    let fileData = [];
+
+    try {
+      if (existsSync('data.json')) {
+        fileData = JSON.parse(readFileSync('data.json'));
+      }
+
+      fileData.unshift(data);
+
+      writeFileSync('data.json', JSON.stringify(fileData, null, 2));
+
+      event.reply('user-response', true);
+    } catch (error) {
+      console.error(error);
+      event.reply('user-response', false);
+    }
+  });
+
+  ipcMain.on('delete-user-data', (event, data) => {
+    let fileData = [];
+
+    try {
+      if (existsSync('data.json')) {
+        fileData = JSON.parse(readFileSync('data.json'));
+      }
+
+      const newFileData = fileData.filter((user) => user.id !== data.id);
+
+      writeFileSync('data.json', JSON.stringify(newFileData, null, 2));
+
+      event.reply('user-response', true, true);
+    } catch (error) {
+      console.error(error);
+      event.reply('user-response', false);
+    }
   });
 });

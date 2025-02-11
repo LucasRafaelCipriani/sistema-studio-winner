@@ -11,7 +11,10 @@ contextBridge.exposeInMainWorld('electron', {
   onGraficos: (callback) =>
     ipcRenderer.on('graficos', (_event, ...args) => callback(...args)),
   // Data
-  onGetUsers: (callback) =>
-    ipcRenderer.on('get-users', (_event, ...args) => callback(...args)),
+  onUserResponse: (callback) =>
+    ipcRenderer.on('user-response', (_event, ...args) => callback(...args)),
+  confirmDeletion: () => ipcRenderer.invoke('show-delete-confirmation'),
+  getUsersData: (data) => ipcRenderer.invoke('get-users-data', data),
   sendUserData: (data) => ipcRenderer.send('send-user-data', data),
+  deleteUserData: (data) => ipcRenderer.send('delete-user-data', data),
 });

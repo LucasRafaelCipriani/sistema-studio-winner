@@ -1,14 +1,22 @@
 import MaskedInput from 'react-text-mask';
+import { v4 as uuidv4 } from 'uuid';
+import { ToastContainer, toast } from 'react-toastify';
 import { useForm, Controller } from 'react-hook-form';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import { useEffect, useRef } from 'react';
 
 const CadastroClientes = () => {
   const { register, handleSubmit, control, reset, formState } = useForm();
+  const ref = useRef(null);
 
   const onSubmit = (data) => {
     if (Object.keys(formState.errors).length <= 0) {
       if (window.electron) {
-        window.electron.sendUserData(data);
+        ref.current = false;
+        window.electron.sendUserData({
+          ...data,
+          id: uuidv4(),
+        });
         reset();
       }
     }
@@ -24,6 +32,28 @@ const CadastroClientes = () => {
     allowNegative: false,
     allowLeadingZeroes: false,
   });
+
+  useEffect(() => {
+    if (window.electron) {
+      window.electron.onUserResponse((isSuccess) => {
+        if (!ref.current) {
+          ref.current = true;
+          if (isSuccess) {
+            toast.success('Cliente salvo com sucesso!', {
+              toastId: new Date().getTime(),
+            });
+          } else {
+            toast.error(
+              'Um erro ocorreu ao tentar salvar um cliente. Por favor, tente novamente.',
+              {
+                toastId: new Date().getTime(),
+              }
+            );
+          }
+        }
+      });
+    }
+  }, []);
 
   return (
     <section className="p-4 bg-black">
@@ -203,6 +233,11 @@ const CadastroClientes = () => {
           Cadastrar
         </button>
       </form>
+      <ToastContainer
+        limit={1}
+        position="bottom-right"
+        toastStyle={{ width: '100%' }}
+      />
     </section>
   );
 };
