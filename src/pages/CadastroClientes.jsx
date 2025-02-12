@@ -2,13 +2,20 @@ import MaskedInput from 'react-text-mask';
 import { v4 as uuidv4 } from 'uuid';
 import { ToastContainer, toast } from 'react-toastify';
 import { useForm, Controller } from 'react-hook-form';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import { useEffect, useRef } from 'react';
-import addCents from '../utils/add-cents';
+import { useMoney } from '../hooks/useMoney';
 
 const CadastroClientes = () => {
-  const { register, handleSubmit, control, reset, formState } = useForm();
+  const { register, handleSubmit, control, reset, formState } = useForm({
+    defaultValues: {
+      nome: '',
+      telefone: '',
+      mensalidade: '',
+      metodo: '',
+    },
+  });
   const ref = useRef(null);
+  const money = useMoney();
 
   const onSubmit = (data) => {
     if (Object.keys(formState.errors).length <= 0) {
@@ -16,24 +23,13 @@ const CadastroClientes = () => {
         ref.current = false;
         window.electron.sendUserData({
           ...data,
-          mensalidade: addCents(data.mensalidade),
+          mensalidade: money.formatMoney(data.mensalidade),
           id: uuidv4(),
         });
         reset();
       }
     }
   };
-
-  const moneyMask = createNumberMask({
-    prefix: 'R$ ',
-    includeThousandsSeparator: true,
-    thousandsSeparatorSymbol: '.',
-    allowDecimal: true,
-    decimalSymbol: ',',
-    integerLimit: 10,
-    allowNegative: false,
-    allowLeadingZeroes: false,
-  });
 
   useEffect(() => {
     if (window.electron) {
@@ -156,7 +152,7 @@ const CadastroClientes = () => {
                   render={({ field }) => (
                     <MaskedInput
                       {...field}
-                      mask={moneyMask}
+                      mask={money.moneyMask}
                       type="text"
                       name="mensalidade"
                       id="mensalidade"
@@ -164,7 +160,9 @@ const CadastroClientes = () => {
                       placeholder="R$ 0,00"
                       guide={false}
                       onBlur={(event) => {
-                        event.target.value = addCents(event.target.value);
+                        event.target.value = money.formatMoney(
+                          event.target.value
+                        );
                       }}
                       ref={(input) => {
                         field.ref({

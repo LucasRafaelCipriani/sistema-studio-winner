@@ -1,37 +1,26 @@
 /* eslint-disable react/prop-types */
 import MaskedInput from 'react-text-mask';
 import { useForm, Controller } from 'react-hook-form';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-import addCents from '../utils/add-cents';
+import { useMoney } from '../hooks/useMoney';
 
 const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
   const { register, handleSubmit, control, formState } = useForm({
     defaultValues: user,
   });
+  const money = useMoney();
 
   const onSubmit = (data) => {
     if (Object.keys(formState.errors).length <= 0) {
       if (window.electron) {
         window.electron.editUserData({
           ...data,
-          mensalidade: addCents(data.mensalidade),
+          mensalidade: money.formatMoney(data.mensalidade),
         });
         onEditUser(data);
         closeModal(false);
       }
     }
   };
-
-  const moneyMask = createNumberMask({
-    prefix: 'R$ ',
-    includeThousandsSeparator: true,
-    thousandsSeparatorSymbol: '.',
-    allowDecimal: true,
-    decimalSymbol: ',',
-    integerLimit: 10,
-    allowNegative: false,
-    allowLeadingZeroes: false,
-  });
 
   return (
     <section className="p-4 bg-black">
@@ -132,7 +121,7 @@ const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
                   render={({ field }) => (
                     <MaskedInput
                       {...field}
-                      mask={moneyMask}
+                      mask={money.moneyMask}
                       type="text"
                       name="mensalidade"
                       id="mensalidade"
@@ -140,7 +129,9 @@ const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
                       placeholder="R$ 0,00"
                       guide={false}
                       onBlur={(event) => {
-                        event.target.value = addCents(event.target.value);
+                        event.target.value = money.formatMoney(
+                          event.target.value
+                        );
                       }}
                       ref={(input) => {
                         field.ref({

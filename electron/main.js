@@ -100,8 +100,12 @@ app.whenReady().then(() => {
       (item) =>
         (data.nome !== ''
           ? item.nome.toLowerCase().includes(data.nome.toLowerCase())
-          : false) ||
-        (data.telefone !== '' ? item.telefone.includes(data.telefone) : false)
+          : true) &&
+        (data.telefone !== '' ? item.telefone.includes(data.telefone) : true) &&
+        (data.mensalidade !== ''
+          ? item.mensalidade === data.mensalidade
+          : true) &&
+        (data.metodo !== '' ? item.metodo === data.metodo : true)
     );
 
     return filteredFileData;
@@ -111,7 +115,7 @@ app.whenReady().then(() => {
     const result = await dialog.showMessageBox(mainWindow, {
       type: 'warning',
       title: 'Confirmação',
-      message: 'Tem certeza que deseja deletar este item?',
+      message: 'Tem certeza que deseja deletar este cliente?',
       buttons: ['Cancelar', 'Deletar'],
       defaultId: 0,
       cancelId: 0,

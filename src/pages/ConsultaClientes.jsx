@@ -8,6 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 import EdicaoCliente from './EdicaoCliente';
 import { cn } from '../utils/cn';
 import MaskedInput from 'react-text-mask';
+import { useMoney } from '../hooks/useMoney';
 
 function formatMoney(value) {
   if (value.includes(',')) return value;
@@ -24,8 +25,16 @@ const ConsultaClientes = () => {
   const [editedUser, setEditedUser] = useState(null);
   const [isEditModalOpened, setIsEditModalOpened] = useState(false);
   const ref = useRef(null);
+  const money = useMoney();
 
-  const { register, handleSubmit, formState, reset, control } = useForm();
+  const { register, handleSubmit, formState, reset, control } = useForm({
+    defaultValues: {
+      nome: '',
+      telefone: '',
+      mensalidade: '',
+      metodo: '',
+    },
+  });
 
   const editUser = (user) => {
     if (window.electron) {
@@ -63,7 +72,11 @@ const ConsultaClientes = () => {
   const onFilterUsers = async (data) => {
     if (window.electron) {
       setIsLoading(true);
-      const filteredUsers = await window.electron.filterUsersData(data);
+      console.log(data);
+      const filteredUsers = await window.electron.filterUsersData({
+        ...data,
+        mensalidade: money.formatMoney(data.mensalidade),
+      });
       setUsers(filteredUsers);
       setIsLoading(false);
     }
@@ -133,20 +146,20 @@ const ConsultaClientes = () => {
         </button>
         {isFilterOpened ? (
           <form
-            className="mt-5 flex flex-col flex-wrap gap-x-4 gap-y-10 mb-3 border p-3 rounded-lg w-full"
+            className="mt-5 flex flex-col gap-x-4 gap-y-10 mb-3 border p-6 rounded-lg w-fit"
             onSubmit={handleSubmit(onFilterUsers)}
           >
-            <div className="flex flex-row gap-x-4">
-              <div>
+            <div className="flex flex-row gap-x-10 justify-end">
+              <div className="flex flex-col">
                 <label>Nome:</label>
                 <input
                   type="text"
-                  className="border-b text-[20px] focus-within:outline-none ml-3"
+                  className="border-b text-[20px] focus-within:outline-none"
                   placeholder="Carlos Alberto"
                   {...register('nome')}
                 />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label>Telefone:</label>
                 <Controller
                   name="telefone"
@@ -174,7 +187,7 @@ const ConsultaClientes = () => {
                       type="text"
                       name="telefone"
                       id="telefone"
-                      className="border-b text-[20px] ml-3 focus-within:outline-none"
+                      className="border-b text-[20px] focus-within:outline-none"
                       placeholder="(99) 99999-9999"
                       guide={false}
                       ref={(input) => {
@@ -186,23 +199,67 @@ const ConsultaClientes = () => {
                   )}
                 />
               </div>
-            </div>
-            <div className="flex flex-row gap-x-4">
-              <div>
+              <div className="flex flex-col">
                 <label>Mensalidade:</label>
-                <input
-                  type="text"
-                  className="border-b text-[20px] focus-within:outline-none ml-3"
-                  {...register('mensalidade')}
+                <Controller
+                  name="mensalidade"
+                  control={control}
+                  render={({ field }) => (
+                    <MaskedInput
+                      {...field}
+                      mask={money.moneyMask}
+                      type="text"
+                      name="mensalidade"
+                      id="mensalidade"
+                      className="border-b text-[20px] focus-within:outline-none"
+                      placeholder="R$ 0,00"
+                      guide={false}
+                      onBlur={(event) => {
+                        event.target.value = money.formatMoney(
+                          event.target.value
+                        );
+                        field.value = money.formatMoney(event.target.value);
+                      }}
+                      ref={(input) => {
+                        field.ref({
+                          focus: () => input && input.inputElement.focus(),
+                        });
+                      }}
+                    />
+                  )}
                 />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label>Método de Pagamento:</label>
-                <input
-                  type="text"
-                  className="border-b text-[20px] focus-within:outline-none ml-3"
-                  {...register('metodo')}
-                />
+                <div className="flex flex-col gap-y-2">
+                  <label className="text-[20px] flex gap-x-2">
+                    <input
+                      type="radio"
+                      value="pix"
+                      name="metodo"
+                      {...register('metodo')}
+                    />
+                    Pix
+                  </label>
+                  <label className="text-[20px] flex gap-x-2">
+                    <input
+                      type="radio"
+                      value="cartao"
+                      name="metodo"
+                      {...register('metodo')}
+                    />
+                    Cartão Débito/Crédito
+                  </label>
+                  <label className="text-[20px] flex gap-x-2">
+                    <input
+                      type="radio"
+                      value="dinheiro"
+                      name="metodo"
+                      {...register('metodo')}
+                    />
+                    Dinheiro
+                  </label>
+                </div>
               </div>
             </div>
             <div className="flex flex-1 justify-end gap-x-4">
