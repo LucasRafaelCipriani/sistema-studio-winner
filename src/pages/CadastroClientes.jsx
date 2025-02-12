@@ -59,7 +59,7 @@ const CadastroClientes = () => {
         Cadastro de <span className="text-green-700">Clientes</span>
       </h1>
       <form
-        className="mt-5 border border-white rounded-lg px-6 py-4 text-white"
+        className="mt-5 border-white rounded-lg py-4 text-white"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="flex flex-col items-center mb-6 gap-y-6">

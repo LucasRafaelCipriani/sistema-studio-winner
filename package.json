@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "main": "electron/main.js",
+  "author": {
+    "email": "lucas.ci25@hotmail.com",
+    "name": "Lucas Rafael Cipriani"
+  },
   "scripts": {
     "dev": "vite",
     "electron": "nodemon --exec electron electron/main.js",
@@ -12,7 +16,36 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "make-installer": "electron-builder"
+  },
+  "build": {
+    "appId": "sistema.studio.winner.instalador",
+    "productName": "Sistema Studio Winner",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/logo-win.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/logo-mac.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/logo-linux.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   },
   "dependencies": {
     "@tabler/icons-react": "^3.30.0",
@@ -28,6 +61,7 @@
     "react-text-mask": "^5.5.0",
     "react-toastify": "^11.0.3",
     "react-use": "^17.6.0",
+    "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss": "^4.0.6",
     "text-mask-addons": "^3.8.0",
@@ -48,6 +82,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.2",
     "electron": "^34.1.1",
+    "electron-builder": "^25.1.8",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",

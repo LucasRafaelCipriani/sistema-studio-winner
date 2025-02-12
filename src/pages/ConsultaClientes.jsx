@@ -289,7 +289,7 @@ const ConsultaClientes = () => {
       ) : (
         <>
           {users.length > 0 ? (
-            <div className="mt-3 border border-white rounded-lg px-6 py-4 text-white">
+            <div className="mt-3 border-white rounded-lg py-4 text-white">
               <div className="border p-3 flex justify-between items-center bg-green-900">
                 <p className="w-[20%] text-left">Nome</p>
                 <p className="w-[20%] text-center">Telefone</p>
