@@ -20,25 +20,14 @@
     "make-installer": "electron-builder"
   },
   "build": {
-    "appId": "sistema.studio.winner.instalador",
+    "appId": "com.studiowinner.instalador",
     "productName": "Sistema Studio Winner",
     "directories": {
       "output": "dist"
     },
     "win": {
       "target": "nsis",
-      "icon": "assets/logo-win.ico"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "assets/logo-mac.png"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "icon": "assets/logo-linux.png"
+      "icon": "public/logo-win.ico"
     },
     "nsis": {
       "oneClick": false,
