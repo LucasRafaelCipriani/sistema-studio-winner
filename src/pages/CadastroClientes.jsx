@@ -163,6 +163,7 @@ const CadastroClientes = () => {
                         event.target.value = money.formatMoney(
                           event.target.value
                         );
+                        field.value = money.formatMoney(event.target.value);
                       }}
                       ref={(input) => {
                         field.ref({

@@ -31,8 +31,11 @@
       "package.json"
     ],
     "win": {
+      "requestedExecutionLevel": "requireAdministrator",
       "target": "nsis",
-      "icon": "public/logo-win.ico"
+      "icon": "public/logo-win.ico",
+      "sign": "cert.pfx",
+      "certificatePassword": "admin123"
     },
     "nsis": {
       "oneClick": false,
