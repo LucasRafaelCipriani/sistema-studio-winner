@@ -32,24 +32,27 @@ app.whenReady().then(() => {
       preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: true,
       contextIsolation: true,
+      enableRemoteModule: true,
     },
   });
 
   mainWindow.maximize();
   mainWindow.loadURL(`${mainUrl}#/`);
 
-  const contextMenu = new Menu();
-  contextMenu.append(new MenuItem({ label: 'Recarregar', role: 'reload' }));
-  contextMenu.append(
-    new MenuItem({
-      label: 'DevTools',
-      click: () => mainWindow.webContents.openDevTools(),
-    })
-  );
+  if (isDev) {
+    const contextMenu = new Menu();
+    contextMenu.append(new MenuItem({ label: 'Recarregar', role: 'reload' }));
+    contextMenu.append(
+      new MenuItem({
+        label: 'DevTools',
+        click: () => mainWindow.webContents.openDevTools(),
+      })
+    );
 
-  mainWindow.webContents.on('context-menu', (_event, params) => {
-    contextMenu.popup(mainWindow, params.x, params.y);
-  });
+    mainWindow.webContents.on('context-menu', (_event, params) => {
+      contextMenu.popup(mainWindow, params.x, params.y);
+    });
+  }
 
   const menuTemplate = [
     {
