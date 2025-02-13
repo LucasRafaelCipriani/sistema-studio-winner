@@ -10,6 +10,10 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow;
 
+const mainUrl = isDev
+  ? 'http://localhost:5173/'
+  : `file://${path.join(__dirname, '..', 'build', 'index.html')}`;
+
 app.whenReady().then(() => {
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -26,52 +30,50 @@ app.whenReady().then(() => {
     ),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
-      nodeIntegration: false,
+      nodeIntegration: true,
       contextIsolation: true,
     },
   });
 
   mainWindow.maximize();
-  mainWindow.loadURL('http://localhost:5173/#/');
+  mainWindow.loadURL(`${mainUrl}#/`);
 
-  if (isDev) {
-    const contextMenu = new Menu();
-    contextMenu.append(new MenuItem({ label: 'Recarregar', role: 'reload' }));
-    contextMenu.append(
-      new MenuItem({
-        label: 'DevTools',
-        click: () => mainWindow.webContents.openDevTools(),
-      })
-    );
+  const contextMenu = new Menu();
+  contextMenu.append(new MenuItem({ label: 'Recarregar', role: 'reload' }));
+  contextMenu.append(
+    new MenuItem({
+      label: 'DevTools',
+      click: () => mainWindow.webContents.openDevTools(),
+    })
+  );
 
-    mainWindow.webContents.on('context-menu', (_event, params) => {
-      contextMenu.popup(mainWindow, params.x, params.y);
-    });
-  }
+  mainWindow.webContents.on('context-menu', (_event, params) => {
+    contextMenu.popup(mainWindow, params.x, params.y);
+  });
 
   const menuTemplate = [
     {
       label: 'Início',
       click: () => {
-        mainWindow.loadURL('http://localhost:5173/#/');
+        mainWindow.loadURL(`${mainUrl}#/`);
       },
     },
     {
       label: 'Cadastro Clientes',
       click: () => {
-        mainWindow.loadURL('http://localhost:5173/#/cadastro-clientes');
+        mainWindow.loadURL(`${mainUrl}#/cadastro-clientes`);
       },
     },
     {
       label: 'Tabela Clientes',
       click: () => {
-        mainWindow.loadURL('http://localhost:5173/#/consulta-clientes');
+        mainWindow.loadURL(`${mainUrl}#/consulta-clientes`);
       },
     },
     {
       label: 'Gráficos',
       click: () => {
-        mainWindow.loadURL('http://localhost:5173/#/graficos');
+        mainWindow.loadURL(`${mainUrl}#/graficos`);
       },
     },
   ];
