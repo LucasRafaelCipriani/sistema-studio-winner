@@ -36,7 +36,7 @@ const ConsultaClientes = () => {
       instagram: '',
       plano: '',
       vencimento: '',
-      observacao: '',
+      observacoes: '',
     },
   });
 
@@ -76,7 +76,6 @@ const ConsultaClientes = () => {
   const onFilterUsers = async (data) => {
     if (window.electron) {
       setIsLoading(true);
-      console.log(data);
       const filteredUsers = await window.electron.filterUsersData({
         ...data,
         mensalidade: money.formatMoney(data.mensalidade),

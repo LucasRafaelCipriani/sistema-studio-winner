@@ -25,8 +25,6 @@ const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
     }
   };
 
-  console.log(formState);
-
   return (
     <section className="p-4 bg-black">
       <h1 className="text-[40px] font-bold text-white">

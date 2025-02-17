@@ -18,7 +18,7 @@ const CadastroClientes = () => {
       instagram: '',
       plano: '',
       vencimento: '',
-      observacao: '',
+      observacoes: '',
     },
   });
   const ref = useRef(null);
@@ -257,6 +257,8 @@ const CadastroClientes = () => {
                       onChange={(date) => {
                         field.onChange(date);
                       }}
+                      minDate={new Date()}
+                      showMonthDropdown
                       locale={{
                         ...ptBR,
                         localize: {
