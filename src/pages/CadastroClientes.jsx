@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { ToastContainer, toast } from 'react-toastify';
 import { useForm, Controller } from 'react-hook-form';
 import { useEffect, useRef } from 'react';
+import DatePicker from 'react-datepicker';
+import { ptBR } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useMoney } from '../hooks/useMoney';
 
 const CadastroClientes = () => {
@@ -12,12 +15,17 @@ const CadastroClientes = () => {
       telefone: '',
       mensalidade: '',
       metodo: '',
+      instagram: '',
+      plano: '',
+      vencimento: '',
+      observacao: '',
     },
   });
   const ref = useRef(null);
   const money = useMoney();
 
   const onSubmit = (data) => {
+    console.log(data);
     if (Object.keys(formState.errors).length <= 0) {
       if (window.electron) {
         ref.current = false;
@@ -78,13 +86,6 @@ const CadastroClientes = () => {
                   {...register('nome', { required: true })}
                 />
               </div>
-              {formState.errors.nome ? (
-                <small className="text-red-600 leading-[20px]">
-                  Campo Obrigatório
-                </small>
-              ) : (
-                <div className="h-[20px]" />
-              )}
             </div>
             <div className="flex flex-col items-end flex-1 border rounded-md p-4">
               <div className="flex flex-row w-full">
@@ -130,13 +131,6 @@ const CadastroClientes = () => {
                   )}
                 />
               </div>
-              {formState.errors.telefone ? (
-                <small className="text-red-600 leading-[20px]">
-                  Campo Obrigatório
-                </small>
-              ) : (
-                <div className="h-[20px]" />
-              )}
             </div>
           </div>
           <div className="flex flex-row gap-x-6 w-full">
@@ -174,13 +168,6 @@ const CadastroClientes = () => {
                   )}
                 />
               </div>
-              {formState.errors.mensalidade ? (
-                <small className="text-red-600 leading-[20px]">
-                  Campo Obrigatório
-                </small>
-              ) : (
-                <div className="h-[20px]" />
-              )}
             </div>
             <div className="flex flex-col items-end flex-1 border rounded-md p-4">
               <div className="flex flex-row w-full">
@@ -215,23 +202,125 @@ const CadastroClientes = () => {
                   </label>
                 </div>
               </div>
-              {formState.errors.metodo ? (
-                <small className="text-red-600 leading-[20px]">
-                  Campo Obrigatório
-                </small>
-              ) : (
-                <div className="h-[20px]" />
-              )}
+            </div>
+          </div>
+          <div className="flex flex-row gap-x-6 w-full">
+            <div className="flex flex-col items-end flex-1 border rounded-md p-4">
+              <div className="flex flex-row w-full">
+                <label htmlFor="instagram" className="text-[20px]">
+                  Instagram:
+                </label>
+                <input
+                  type="text"
+                  name="instagram"
+                  id="instagram"
+                  placeholder="@carlos.alberto"
+                  className="w-full border-b text-[20px] ml-3 focus-within:outline-none"
+                  {...register('instagram', { required: false })}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col items-end flex-1 border rounded-md p-4">
+              <div className="flex flex-row w-full">
+                <label className="text-[20px]" htmlFor="plano">
+                  Plano:
+                </label>
+                <select
+                  name="plano"
+                  id="plano"
+                  className="w-full border-b text-[20px] ml-3 focus-within:outline-none"
+                  {...register('plano', { required: true })}
+                >
+                  <option value="" disabled>
+                    Selecione um plano
+                  </option>
+                  <option className="text-black">Mensal</option>
+                  <option className="text-black">Semestral</option>
+                  <option className="text-black">Anual</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-row gap-x-6 w-full">
+            <div className="flex flex-col items-end flex-1 border rounded-md p-4">
+              <div className="flex flex-row w-full vencimento-input">
+                <label htmlFor="vencimento" className="text-[20px]">
+                  Vencimento:
+                </label>
+                <Controller
+                  name="vencimento"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <DatePicker
+                      selected={field.value}
+                      onChange={(date) => {
+                        field.onChange(date);
+                      }}
+                      locale={{
+                        ...ptBR,
+                        localize: {
+                          ...ptBR.localize,
+                          month: (n, options) => {
+                            const month = ptBR.localize.month(n, options);
+                            return (
+                              month.charAt(0).toUpperCase() + month.slice(1)
+                            );
+                          },
+                        },
+                      }}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="Selecione uma data"
+                      withPortal
+                      customInput={
+                        <MaskedInput
+                          {...field}
+                          mask={money.moneyMask}
+                          type="text"
+                          name="mensalidade"
+                          id="mensalidade"
+                          className="w-full border-b text-[20px] ml-3 focus-within:outline-none"
+                          placeholder="R$ 0,00"
+                          guide={false}
+                          onBlur={(event) => {
+                            event.target.value = money.formatMoney(
+                              event.target.value
+                            );
+                            field.value = money.formatMoney(event.target.value);
+                          }}
+                          ref={(input) => {
+                            field.ref({
+                              focus: () => input && input.inputElement.focus(),
+                            });
+                          }}
+                        />
+                      }
+                    />
+                  )}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col items-end flex-1 border rounded-md p-4">
+              <div className="flex flex-row w-full">
+                <label className="text-[20px]" htmlFor="observacoes">
+                  Observações:
+                </label>
+                <textarea
+                  id="observacoes"
+                  name="observacoes"
+                  className="w-full border-b text-[20px] ml-3 focus-within:outline-none resize-none"
+                  rows={5}
+                  maxLength={150}
+                  placeholder="Observações sobre o cliente..."
+                  {...register('observacoes', { required: false })}
+                />
+              </div>
             </div>
           </div>
         </div>
         <button
           type="submit"
-          disabled={
-            Object.keys(formState.dirtyFields).length < 4 ||
-            Object.keys(formState.errors).length > 0 ||
-            formState.isLoading
-          }
+          disabled={!formState.isValid || formState.isLoading}
           className="rounded-md bg-green-700 text-white text-[20px] px-4 py-2 w-full hover:bg-green-950 disabled:bg-gray-500 disabled:cursor-not-allowed"
         >
           Cadastrar

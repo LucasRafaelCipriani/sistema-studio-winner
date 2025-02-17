@@ -31,7 +31,7 @@ const Inicio = () => {
         </div>
       </div>
       <small className="text-white text-[18px] justify-center items-end w-full flex flex-1">
-        &copy; Studio Winner 2025.
+        &copy; Studio Winner {new Date().getFullYear()}.
       </small>
     </section>
   );

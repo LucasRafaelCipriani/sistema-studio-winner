@@ -33,6 +33,10 @@ const ConsultaClientes = () => {
       telefone: '',
       mensalidade: '',
       metodo: '',
+      instagram: '',
+      plano: '',
+      vencimento: '',
+      observacao: '',
     },
   });
 
@@ -272,7 +276,7 @@ const ConsultaClientes = () => {
                 Resetar Filtros
               </button>
               <button
-                disabled={formState.isLoading}
+                disabled={!formState.isValid || formState.isLoading}
                 className="bg-green-700 text-white p-3 rounded-lg hover:bg-green-950 cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
                 type="submit"
               >
