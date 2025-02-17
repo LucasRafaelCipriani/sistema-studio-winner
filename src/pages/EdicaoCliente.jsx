@@ -5,8 +5,10 @@ import DatePicker from 'react-datepicker';
 import { ptBR } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useMoney } from '../hooks/useMoney';
+import { useState } from 'react';
 
 const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
+  const [date, setDate] = useState(user?.vencimento ?? null);
   const { register, handleSubmit, control, formState } = useForm({
     defaultValues: user,
   });
@@ -211,57 +213,63 @@ const EdicaoCliente = ({ user, onEditUser, closeModal }) => {
                 <label htmlFor="vencimento" className="text-[20px]">
                   Vencimento:
                 </label>
-                <Controller
-                  name="vencimento"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => {
-                        field.onChange(date);
-                      }}
-                      locale={{
-                        ...ptBR,
-                        localize: {
-                          ...ptBR.localize,
-                          month: (n, options) => {
-                            const month = ptBR.localize.month(n, options);
-                            return (
-                              month.charAt(0).toUpperCase() + month.slice(1)
-                            );
+                <div className="w-full">
+                  <Controller
+                    name="vencimento"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <DatePicker
+                        selected={date}
+                        onChange={(newDate) => {
+                          field.onChange(newDate);
+                          setDate(newDate);
+                        }}
+                        minDate={new Date()}
+                        showMonthDropdown
+                        autoComplete="off"
+                        locale={{
+                          ...ptBR,
+                          localize: {
+                            ...ptBR.localize,
+                            month: (n, options) => {
+                              const month = ptBR.localize.month(n, options);
+                              return (
+                                month.charAt(0).toUpperCase() + month.slice(1)
+                              );
+                            },
                           },
-                        },
-                      }}
-                      dateFormat="dd/MM/yyyy"
-                      placeholderText="Selecione uma data"
-                      withPortal
-                      customInput={
-                        <MaskedInput
-                          {...field}
-                          mask={money.moneyMask}
-                          type="text"
-                          name="mensalidade"
-                          id="mensalidade"
-                          className="w-full border-b text-[20px] ml-3 focus-within:outline-none"
-                          placeholder="R$ 0,00"
-                          guide={false}
-                          onBlur={(event) => {
-                            event.target.value = money.formatMoney(
-                              event.target.value
-                            );
-                            field.value = money.formatMoney(event.target.value);
-                          }}
-                          ref={(input) => {
-                            field.ref({
-                              focus: () => input && input.inputElement.focus(),
-                            });
-                          }}
-                        />
-                      }
-                    />
-                  )}
-                />
+                        }}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Selecione uma data"
+                        customInput={
+                          <MaskedInput
+                            mask={[
+                              /\d/,
+                              /\d/,
+                              '/',
+                              /\d/,
+                              /\d/,
+                              '/',
+                              /\d/,
+                              /\d/,
+                              /\d/,
+                              /\d/,
+                            ]}
+                            className="w-full border-b text-[20px] ml-3 focus-within:outline-none"
+                            placeholder="Selecione uma data"
+                            guide={false}
+                          />
+                        }
+                        ref={(ref) => {
+                          field.ref({
+                            focus: ref?.setFocus,
+                          });
+                        }}
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex flex-col items-end flex-1 border rounded-md p-4">
